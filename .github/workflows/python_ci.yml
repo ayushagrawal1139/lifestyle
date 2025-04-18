@@ -9,10 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}  # This ensures proper environment sourcing
-    
     steps:
       - uses: actions/checkout@v3
 
@@ -20,25 +16,30 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-          cache: 'pip'
 
-      - name: Install system dependencies
+      - name: Nuke and rebuild Python environment
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-dev
+          # Completely remove any existing Python installations
+          sudo rm -rf /usr/local/lib/python3.8
+          sudo rm -rf /opt/hostedtoolcache/Python
 
-      - name: Install Python packages
-        run: |
-          python -m pip install --upgrade pip
-          pip install --no-cache-dir pandas numpy openpyxl
-          pip list  # Verify installed packages
-
-      - name: Verify pandas installation
-        run: |
-          python -c "import pandas as pd; print(f'Pandas version: {pd.__version__}')"
-          python -c "import sys; print('\n'.join(sys.path))"  # Show Python path
+          # Reinstall Python from scratch
+          sudo apt-get remove -y python3.8
+          sudo apt-get install --reinstall -y python3.8 python3.8-dev python3.8-venv
+          
+          # Create fresh virtual environment
+          python3.8 -m venv --clear ~/venv
+          source ~/venv/bin/activate
+          
+          # Install pip and core packages
+          curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+          python3.8 get-pip.py --force-reinstall
+          pip install --no-cache-dir --ignore-installed pandas numpy openpyxl
+          
+          # Verify installation
+          python -c "import pandas as pd; print(f'SUCCESS: Pandas {pd.__version__} installed')"
 
       - name: Run data collection
         run: |
+          source ~/venv/bin/activate
           python scripts/data_collection.py
-          
