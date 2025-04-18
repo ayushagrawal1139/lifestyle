@@ -1,11 +1,10 @@
 name: Python CI
 
-on: 
+on:
   push:
-    branches: [ main ]
+    branches: [ main, feature/lifestyle-college-student ]
   pull_request:
-    branches: [ main ]
-
+    branches: [ main, feature/lifestyle-college-student ]
 jobs:
   build:
     runs-on: ubuntu-latest
