@@ -1,5 +1,4 @@
 name: Python CI
-
 on:
   push:
     branches: [ main, feature/lifestyle-college-student ]
@@ -11,17 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-
+      
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas numpy openpyxl scikit-learn xgboost joblib
+          pip install pandas numpy openpyxl scikit-learn xgboost joblib matplotlib seaborn
           python -c "import pandas as pd; print(f'Pandas {pd.__version__} installed')"
-
+      
       - name: Run data collection
         run: python scripts/data_collection.py
+      
+      - name: Run preprocessing
+        run: python scripts/data_preprocessing.py
+        
+      - name: Run model training
+        run: python scripts/model_training.py
+        
+      - name: Run evaluation
+        run: python scripts/model_evaluation.py
