@@ -17,29 +17,11 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Nuke and rebuild Python environment
+      - name: Install dependencies
         run: |
-          # Completely remove any existing Python installations
-          sudo rm -rf /usr/local/lib/python3.8
-          sudo rm -rf /opt/hostedtoolcache/Python
-
-          # Reinstall Python from scratch
-          sudo apt-get remove -y python3.8
-          sudo apt-get install --reinstall -y python3.8 python3.8-dev python3.8-venv
-          
-          # Create fresh virtual environment
-          python3.8 -m venv --clear ~/venv
-          source ~/venv/bin/activate
-          
-          # Install pip and core packages
-          curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-          python3.8 get-pip.py --force-reinstall
-          pip install --no-cache-dir --ignore-installed pandas numpy openpyxl
-          
-          # Verify installation
-          python -c "import pandas as pd; print(f'SUCCESS: Pandas {pd.__version__} installed')"
+          python -m pip install --upgrade pip
+          pip install pandas numpy openpyxl scikit-learn xgboost joblib
+          python -c "import pandas as pd; print(f'Pandas {pd.__version__} installed')"
 
       - name: Run data collection
-        run: |
-          source ~/venv/bin/activate
-          python scripts/data_collection.py
+        run: python scripts/data_collection.py
